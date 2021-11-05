@@ -127,7 +127,7 @@ services:
         - ckb
   
   # gen-godwoken-schema:
-  #   image: retricsu/gowoken-build_dev:ubuntu20
+  #   image: "${DOCKER_MANUAL_BUILD_IMAGE_NAME}:${DOCKER_MANUAL_BUILD_IMAGE_TAG}"
   #   profiles: ["cli-only"]
   #   volumes: 
   #     - ../:/code
