@@ -8,27 +8,24 @@ jobs:
   hardhat-simple-project:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Part 1. Deploy Local Network of Godwoken"
-      - name: Checkout Godwoken-Kicker
-        uses: actions/checkout@v2
-      - run: git rev-parse HEAD
-      - run: ./kicker init
-      - run: ./kicker start
-      - run: ./kicker info
-      - run: ./kicker ps
-      - run: ./kicker ps web3
-      - run: ./kicker logs
-      - run: ./kicker logs web3
-      - run: ./kicker -- top
-      - run: ./kicker -- exec -i ckb ls -l
-      - run: ./kicker -- help
-      - run: ./kicker deposit config/private_key 1000
+      #       - run: echo "Part 1. Deploy Local Network of Godwoken"
+      #       - name: Checkout Godwoken-Kicker
+      #         uses: actions/checkout@v2
+      #       - run: git rev-parse HEAD
+      #       - run: ./kicker init
+      #       - run: ./kicker start
+      #       - run: ./kicker info
+      #       - run: ./kicker ps
+      #       - run: ./kicker ps web3
+      #       - run: ./kicker logs
+      #       - run: ./kicker logs web3
+      #       - run: ./kicker -- top
+      #       - run: ./kicker -- exec -i ckb ls -l
+      #       - run: ./kicker -- help
+      #       - run: ./kicker deposit config/private_key 1000
 
       - run: echo "Part 2. Deploy A Simple Contract Using Hardhat"
-      - name: Checkout NomicFoundation/hardhat
-        uses: actions/checkout@v2
-        with:
-          repository: NomicFoundation/hardhat
+      - run: git clone --depth=1 https://github.com/NomicFoundation/hardhat
       - run: npm install --save-dev hardhat @nomiclabs/hardhat-waffle
         working-directory: hardhat/packages/hardhat-core/sample-projects/basic/
       - name: Adapt hardhat.config.js to our local network of Godwoken
