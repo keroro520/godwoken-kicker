@@ -8,7 +8,8 @@ jobs:
   hardhat-simple-project:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Part 1: Deploy Local Network of Godwoken"
+      - name: Deploy Local Network of Godwoken
+        run: echo "Part 1: Deploy Local Network of Godwoken"
       - uses: actions/checkout@v2
       - run: git rev-parse HEAD
       - run: ./kicker start
