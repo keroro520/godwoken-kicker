@@ -195,6 +195,7 @@ function deposit() {
         godwoken
 }
 
+# Note that this function MUST be in tty mode.
 # @example get-balance "0x0C1EfCCa2Bcb65A532274f3eF24c044EF4ab6D73"
 function get-balance() {
     ethaddr=${1:?"\"$EXECUTABLE deposit\" requires eth address as 1st argument"}
