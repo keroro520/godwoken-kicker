@@ -9,7 +9,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: echo "Part 1. Deploy Local Network of Godwoken"
-      - uses: actions/checkout@v2
+      - name: Checkout Godwoken-Kicker
+        uses: actions/checkout@v2
       - run: git rev-parse HEAD
       - run: ./kicker init
       - run: ./kicker start
@@ -24,7 +25,8 @@ jobs:
       - run: ./kicker deposit config/private_key 1000
 
       - run: echo "Part 2. Deploy A Simple Contract Using Hardhat"
-      - uses: actions/checkout@v2
+      - name: Checkout NomicFoundation/hardhat
+        uses: actions/checkout@v2
         with:
           repository: NomicFoundation/hardhat
       - run: npm install --save-dev hardhat @nomiclabs/hardhat-waffle
@@ -43,7 +45,8 @@ jobs:
         working-directory: hardhat/packages/hardhat-core/sample-projects/basic/
 
       - run: echo "Part3. Clean Up"
-      - uses: actions/checkout@v2
+      - name: Checkout Godwoken-Kicker
+        uses: actions/checkout@v2
       - run: ./kicker stop
       - run: sudo ./kicker clean
       - run: ./kicker ps
