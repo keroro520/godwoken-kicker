@@ -13,6 +13,9 @@ jobs:
         os: [ "ubuntu-latest", "windows-latest" ]
       fail-fast: false
       max-parallel: 10
+    defaults:
+      run:
+        shell: bash
     steps:
       - run: echo "Part 1. Deploy Local Network of Godwoken"
       - name: Checkout Godwoken-Kicker
