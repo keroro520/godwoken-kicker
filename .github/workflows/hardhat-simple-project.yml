@@ -8,11 +8,10 @@ jobs:
   hardhat-simple-project:
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy Local Network of Godwoken
-        run: |
-          echo "Part 1: Deploy Local Network of Godwoken"
+      - run: echo "Part 1. Deploy Local Network of Godwoken"
       - uses: actions/checkout@v2
       - run: git rev-parse HEAD
+      - run: ./kicker init
       - run: ./kicker start
       - run: ./kicker info
       - run: ./kicker ps
@@ -24,9 +23,7 @@ jobs:
       - run: ./kicker -- help
       - run: ./kicker deposit config/private_key 1000
 
-      - name: Deploy A Simple Contract Using Hardhat
-        run: |
-          echo "Part 2: Deploy A Simple Contract Using Hardhat"
+      - run: echo "Part 2. Deploy A Simple Contract Using Hardhat"
       - uses: actions/checkout@v2
         with:
           repo: NomicFoundation/hardhat
@@ -45,9 +42,7 @@ jobs:
       - run: npx hardhat run --network gw_devnet_v1 scripts/sample-script.js
         working-directory: hardhat/packages/hardhat-core/sample-projects/basic/
 
-      - name: Clean Up
-        run: |
-          echo "Part3: Clean Up"
+      - run: echo "Part3. Clean Up"
       - uses: actions/checkout@v2
       - run: ./kicker stop
       - run: sudo ./kicker clean
