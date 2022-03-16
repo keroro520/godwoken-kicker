@@ -1,5 +1,6 @@
 on:
   push:
+    # FIXME
     branches: [develop, master, ci, v1, compatibility-changes, kicker-deposit]
     # Publish semver tags as releases.
     tags: ["v*.*.*"]
