@@ -24,7 +24,8 @@ jobs:
       - run: ./kicker -- help
       - run: ./kicker deposit config/private_key 1000
 
-      - run: |
+      - name: Deploy A Simple Contract Using Hardhat
+        run: |
         echo "Part 2: Deploy A Simple Contract Using Hardhat"
       - run: actions/checkout@v2
         with:
@@ -44,8 +45,9 @@ jobs:
       - run: npx hardhat run --network gw_devnet_v1 scripts/sample-script.js
         working-directory: hardhat/packages/hardhat-core/sample-projects/basic/
 
-      - run: |
-        echo "Part3: Clean Up"
+      - name: Clean Up
+        run: |
+          echo "Part3: Clean Up"
       - uses: actions/checkout@v2
       - run: ./kicker stop
       - run: sudo ./kicker clean
