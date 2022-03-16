@@ -27,7 +27,7 @@ jobs:
       - name: Deploy A Simple Contract Using Hardhat
         run: |
           echo "Part 2: Deploy A Simple Contract Using Hardhat"
-      - run: actions/checkout@v2
+      - uses: actions/checkout@v2
         with:
           repo: NomicFoundation/hardhat
       - run: npm install --save-dev hardhat @nomiclabs/hardhat-waffle
