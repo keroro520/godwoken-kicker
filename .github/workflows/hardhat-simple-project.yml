@@ -26,7 +26,7 @@ jobs:
       - run: echo "Part 2. Deploy A Simple Contract Using Hardhat"
       - uses: actions/checkout@v2
         with:
-          repo: NomicFoundation/hardhat
+          repository: NomicFoundation/hardhat
       - run: npm install --save-dev hardhat @nomiclabs/hardhat-waffle
         working-directory: hardhat/packages/hardhat-core/sample-projects/basic/
       - name: Adapt hardhat.config.js to our local network of Godwoken
