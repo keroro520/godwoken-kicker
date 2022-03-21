@@ -85,7 +85,7 @@ lock.hash_type = "type"
 [[genesis.issued_cells]]
 capacity = 20_000_000_000_00000000
 lock.code_hash = "0x9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8"
-lock.args = "0x952809177232d0dba355ba5b6f4eaca39cc57746"
+lock.args = "0x8b9404ef6ec6c2411dee3ac9daedba24e347f4af"
 lock.hash_type = "type"
 
 # godwoken block producer
@@ -94,7 +94,7 @@ lock.hash_type = "type"
 [[genesis.issued_cells]]
 capacity = 20_000_000_000_00000000
 lock.code_hash = "0x9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8"
-lock.args = "0x952809177232d0dba355ba5b6f4eaca39cc57746"
+lock.args = "0x1d4b2a15f55ba1aa035f64ad6080e0943cc5ec0b"
 lock.hash_type = "type"
 
 # godwoken eoa register
@@ -109,6 +109,7 @@ lock.hash_type = "type"
 # rollup scripts deployer (will be removed soon)
 # private key: 0x17523ffa1828c009fbcaba19a08ecb57c39c1423932762c55906ff781adb3afa
 # private key path: accounts/rollup-scripts-deployer.key
+[[genesis.issued_cells]]
 capacity = 20_000_000_000_00000000
 lock.code_hash = "0x9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8"
 lock.args = "0x59ae1262575c460cc26f9c91823b2926bea1bfda"
@@ -117,6 +118,7 @@ lock.hash_type = "type"
 # polyjuice root account
 # private key: 0x334b50a8540b883de3a0bb8b9d937059df9ef1398eda44e0124f0cfb5a87f775
 # private key path: accounts/polyjuice-root-account.key
+[[genesis.issued_cells]]
 capacity = 20_000_000_000_00000000
 lock.code_hash = "0x9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8"
 lock.args = "0x8740d33ce89ca6817daf78a19e6cdedcbbf9d5aa"

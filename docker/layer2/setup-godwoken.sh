@@ -127,7 +127,7 @@ function generate-godwoken-config() {
     log "Generate file \"$CONFIG_DIR/godwoken-config.toml\""
 }
 
-# TODO 有几个东西是可以并行的
+# TODO It could be parallel
 function create-polyjuice-root-account() {
     log "start"
     if [ -s "$CONFIG_DIR/polyjuice-root-account-id" ]; then
