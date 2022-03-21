@@ -77,7 +77,6 @@ function deploy-rollup-genesis() {
         return 0
     fi
 
-    start-ckb-miner-at-background
     RUST_BACKTRACE=full gw-tools deploy-genesis \
         --ckb-rpc http://ckb:8114 \
         --scripts-deployment-path $CONFIG_DIR/scripts-deployment.json \
@@ -85,7 +84,6 @@ function deploy-rollup-genesis() {
         --rollup-config $CONFIG_DIR/rollup-config.json \
         -o $CONFIG_DIR/rollup-genesis-deployment.json \
         -k $PRIVATE_KEY_PATH
-    stop-ckb-miner
     log "Generate file \"$CONFIG_DIR/rollup-genesis-deployment.json\""
 }
 
@@ -175,19 +173,6 @@ function deposit-and-create-polyjuice-creator-account() {
         echo "code_hash = '0x9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8'" >> $CONFIG_DIR/godwoken-config.toml
     fi
 
-    # Deposit a testing account for integration tests.
-    #
-    # Note that godwoken MUST restart after configing eth_eoa_mapping_config.
-    start-godwoken-at-background
-    RUST_BACKTRACE=full gw-tools deposit-ckb \
-        --privkey-path $META_USER_PRIVATE_KEY_PATH \
-        --godwoken-rpc-url http://127.0.0.1:8119 \
-        --ckb-rpc http://ckb:8114 \
-        --scripts-deployment-path $CONFIG_DIR/scripts-deployment.json \
-        --config-path $CONFIG_DIR/godwoken-config.toml \
-        --capacity 2000
-    stop-godwoken
-
     log "Generate file \"$CONFIG_DIR/polyjuice-creator-account-id\""
 }
 
@@ -271,21 +256,12 @@ EOF
     log "Generate file \"$CONFIG_DIR/web3-indexer-config.toml\""
 }
 
-# TODO replace with jq
-function get_value2() {
-    filepath=$1
-    key1=$2
-    key2=$3
-
-    echo "$(cat $filepath)" | grep -Pzo ''$key1'[^}]*'$key2'":[\s]*"\K[^"]*'
-}
-
 function log() {
     echo "[${FUNCNAME[1]}] $1"
 }
 
 function main() {
-    deploy-scripts
+    # deploy-scripts
     deploy-rollup-genesis
     generate-godwoken-config
     deposit-and-create-polyjuice-creator-account
