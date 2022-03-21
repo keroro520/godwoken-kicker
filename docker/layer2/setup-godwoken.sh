@@ -7,8 +7,10 @@ set -o errexit
 
 WORKSPACE="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 CONFIG_DIR="$WORKSPACE/config"
+ACCOUNTS_DIR="${ACCOUNTS_DIR:-"ACCOUNTS_DIR is required"}"
 CKB_MINER_PID=""
 GODWOKEN_PID=""
+COMPATIBLE_CHAIN_ID=1984
 
 function start-ckb-miner-at-background() {
     log "start"
@@ -59,13 +61,13 @@ function deploy-scripts() {
         log "$CONFIG_DIR/scripts-deployment.json already exists, skip"
         return 0
     fi
-    
+
     start-ckb-miner-at-background
     RUST_BACKTRACE=full gw-tools deploy-scripts \
         --ckb-rpc http://ckb:8114 \
         -i $CONFIG_DIR/scripts-config.json \
         -o $CONFIG_DIR/scripts-deployment.json \
-        -k $PRIVATE_KEY_PATH
+        -k $ACCOUNTS_DIR/rollup-scripts-deployer.key
     stop-ckb-miner
 
     log "Generate file \"$CONFIG_DIR/scripts-deployment.json\""
@@ -85,7 +87,7 @@ function deploy-rollup-genesis() {
         --omni-lock-config-path $CONFIG_DIR/scripts-deployment.json \
         --rollup-config $CONFIG_DIR/rollup-config.json \
         -o $CONFIG_DIR/rollup-genesis-deployment.json \
-        -k $PRIVATE_KEY_PATH
+        -k $ACCOUNTS_DIR/rollup-genesis-cell-deployer.key
     stop-ckb-miner
     log "Generate file \"$CONFIG_DIR/rollup-genesis-deployment.json\""
 }
@@ -105,7 +107,7 @@ function generate-godwoken-config() {
         --omni-lock-config-path $CONFIG_DIR/scripts-deployment.json \
         -g $CONFIG_DIR/rollup-genesis-deployment.json \
         --rollup-config $CONFIG_DIR/rollup-config.json \
-        --privkey-path $PRIVATE_KEY_PATH \
+        --privkey-path $ACCOUNTS_DIR/godwoken-block-producer.key \
         -o $CONFIG_DIR/godwoken-config.toml \
         --rpc-server-url 0.0.0.0:8119
 
@@ -118,78 +120,59 @@ function generate-godwoken-config() {
     fi
     sed -i 's#enable_methods = \[\]#err_receipt_ws_listen = '"'0.0.0.0:8120'"'#' $CONFIG_DIR/godwoken-config.toml
 
+    # TODO https://github.com/nervosnetwork/godwoken/issues/616
+    # update block_producer.account_id
+    sed -i 's#^account_id = .*$#account_id = 2#' $CONFIG_DIR/godwoken-config.toml
+
     log "Generate file \"$CONFIG_DIR/godwoken-config.toml\""
 }
 
-function deposit-and-create-polyjuice-creator-account() {
+# TODO 有几个东西是可以并行的
+function create-polyjuice-root-account() {
     log "start"
-    if [ -s "$CONFIG_DIR/polyjuice-creator-account-id" ]; then
-        log "$CONFIG_DIR/polyjuice-creator-account-id already exists, skip"
+    if [ -s "$CONFIG_DIR/polyjuice-root-account-id" ]; then
+        log "$CONFIG_DIR/polyjuice-root-account-id already exists, skip"
         return 0
     fi
 
-    # To complete the rest steps, we have to start a temporary godwoken
-    # process in background. This temporary process will dead as "setup-godwoken"
-    # docker-compose service exit.
-    start-godwoken-at-background
-
-    # Deposit and create account for $PRIVATE_KEY_PATH
+    start-ckb-miner-at-background
     RUST_BACKTRACE=full gw-tools deposit-ckb \
-        --privkey-path $PRIVATE_KEY_PATH \
+        --privkey-path $ACCOUNTS_DIR/polyjuice-root-account.key \
         --godwoken-rpc-url http://127.0.0.1:8119 \
         --ckb-rpc http://ckb:8114 \
         --scripts-deployment-path $CONFIG_DIR/scripts-deployment.json \
         --config-path $CONFIG_DIR/godwoken-config.toml \
         --capacity 2000
     RUST_BACKTRACE=full gw-tools create-creator-account \
-        --privkey-path $PRIVATE_KEY_PATH \
+        --privkey-path $ACCOUNTS_DIR/polyjuice-root-account.key \
         --godwoken-rpc-url http://127.0.0.1:8119 \
         --scripts-deployment-path $CONFIG_DIR/scripts-deployment.json \
         --config-path $CONFIG_DIR/godwoken-config.toml \
         --sudt-id 1 \
     > /var/tmp/gw-tools.log 2>&1
-    stop-godwoken
-
-    # TODO https://github.com/nervosnetwork/godwoken/issues/616
-    # update block_producer.account_id
-    sed -i 's#^account_id = .*$#account_id = 2#' $CONFIG_DIR/godwoken-config.toml
+    stop-ckb-miner
 
     cat /var/tmp/gw-tools.log
-    tail -n 1 /var/tmp/gw-tools.log | grep -oE '[0-9]+$' > $CONFIG_DIR/polyjuice-creator-account-id
+    tail -n 1 /var/tmp/gw-tools.log | grep -oE '[0-9]+$' > $CONFIG_DIR/polyjuice-root-account-id
+    log "Generate file \"$CONFIG_DIR/polyjuice-root-account-id\""
+}
 
-    creator_account_id=$(cat $CONFIG_DIR/polyjuice-creator-account-id)
-    if [ $creator_account_id != "4" ]; then
-        log "cat $CONFIG_DIR/polyjuice-creator-account-id ==> $creator_account_id"
-        log "Error: The polyjuice-creator-account-id is expected to be 4, but got $creator_account_id"
-        exit 1
+function config-godwoken-eoa-register() {
+    log "start"
+    configured_eoa_register=$(grep -q eth_eoa_mapping_config $CONFIG_DIR/godwoken-config.toml || echo "not found")
+    if [ ! "$configured_eoa_register" = "not found" ]; then
+        log "eth_eoa_mapping_config configuration already exists, skip"
     fi
 
-    # Fill the first deposit account into the configuration `[eth_eoa_mapping_config]`
-    result=$(grep -q eth_eoa_mapping_config $CONFIG_DIR/godwoken-config.toml || echo "not found")
-    if [ "$result" = "not found" ]; then
-        echo ""                                                                                 >> $CONFIG_DIR/godwoken-config.toml
-        echo "[eth_eoa_mapping_config.register_wallet_config]"                                  >> $CONFIG_DIR/godwoken-config.toml
-        echo "privkey_path = '$PRIVATE_KEY_PATH'"                                               >> $CONFIG_DIR/godwoken-config.toml
-        echo "[eth_eoa_mapping_config.register_wallet_config.lock]"                             >> $CONFIG_DIR/godwoken-config.toml
-        echo "args = '0x43d509d97f26007a285f39241cffcd411157196c'"                              >> $CONFIG_DIR/godwoken-config.toml
-        echo "hash_type = 'type'"                                                               >> $CONFIG_DIR/godwoken-config.toml
-        echo "code_hash = '0x9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8'" >> $CONFIG_DIR/godwoken-config.toml
-    fi
+    echo ""                                                                                 >> $CONFIG_DIR/godwoken-config.toml
+    echo "[eth_eoa_mapping_config.register_wallet_config]"                                  >> $CONFIG_DIR/godwoken-config.toml
+    echo "privkey_path = '$ACCOUNTS_DIR/godwoken-eoa-register.key'"                         >> $CONFIG_DIR/godwoken-config.toml
+    echo "[eth_eoa_mapping_config.register_wallet_config.lock]"                             >> $CONFIG_DIR/godwoken-config.toml
+    echo "args = '0x2fb2d69092a6c9206c7f5c2348ebf0a84438bcf2'"                              >> $CONFIG_DIR/godwoken-config.toml
+    echo "hash_type = 'type'"                                                               >> $CONFIG_DIR/godwoken-config.toml
+    echo "code_hash = '0x9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8'" >> $CONFIG_DIR/godwoken-config.toml
 
-    # Deposit a testing account for integration tests.
-    #
-    # Note that godwoken MUST restart after configing eth_eoa_mapping_config.
-    start-godwoken-at-background
-    RUST_BACKTRACE=full gw-tools deposit-ckb \
-        --privkey-path $META_USER_PRIVATE_KEY_PATH \
-        --godwoken-rpc-url http://127.0.0.1:8119 \
-        --ckb-rpc http://ckb:8114 \
-        --scripts-deployment-path $CONFIG_DIR/scripts-deployment.json \
-        --config-path $CONFIG_DIR/godwoken-config.toml \
-        --capacity 2000
-    stop-godwoken
-
-    log "Generate file \"$CONFIG_DIR/polyjuice-creator-account-id\""
+    log "Configured Godwoken EOA register"
 }
 
 function generate-web3-config() {
@@ -199,16 +182,11 @@ function generate-web3-config() {
         return 0
     fi
 
-    creator_account_id=$(cat $CONFIG_DIR/polyjuice-creator-account-id)
-    if [ $creator_account_id != "4" ]; then
-        log "cat $CONFIG_DIR/polyjuice-creator-account-id ==> $creator_account_id"
-        log "Error: The polyjuice-creator-account-id is expected to be 4, but got $creator_account_id"
-        exit 1
-    fi
-
     if ! command -v jq &> /dev/null; then
         apt-get install -y jq &>/dev/null
     fi
+
+    creator_account_id=$(cat $CONFIG_DIR/polyjuice-root-account-id)
 
     # TODO: get ETH_ADDRESS_REGISTRY_ACCOUNT_ID from the args of creator_script.args
     cat <<EOF > $CONFIG_DIR/web3-config.env
@@ -224,7 +202,6 @@ GODWOKEN_JSON_RPC=http://godwoken:8119
 GODWOKEN_WS_RPC_URL=ws://godwoken:8120
 PORT=8024
 
-# The CREATOR_ACCOUNT_ID is always be 4 as the first polyjuice account;
 # the COMPATIBLE_CHAIN_ID is the identifier of our godwoken devnet;
 # then we can calculate the CHAIN_ID by:
 #
@@ -233,9 +210,10 @@ PORT=8024
 # More about chain id:
 # * https://github.com/nervosnetwork/godwoken/pull/561
 # * https://eips.ethereum.org/EIPS/eip-1344#specification
-CREATOR_ACCOUNT_ID=4
-COMPATIBLE_CHAIN_ID=1984
-CHAIN_ID=8521215115268
+CREATOR_ACCOUNT_ID=$creator_account_id
+COMPATIBLE_CHAIN_ID=$COMPATIBLE_CHAIN_ID
+CHAIN_ID=$(($COMPATIBLE_CHAIN_ID << 32 + $creator_account_id))
+
 
 # When requests "executeTransaction" RPC interface, the RawL2Transaction's
 # signature can be omit. Therefore we fill the RawL2Transaction.from_id
@@ -258,7 +236,7 @@ function generate-web3-indexer-config() {
 
     source $CONFIG_DIR/web3-config.env
     cat <<EOF > $CONFIG_DIR/web3-indexer-config.toml
-compatible_chain_id=1984
+compatible_chain_id=$COMPATIBLE_CHAIN_ID
 l2_sudt_type_script_hash="$L2_SUDT_VALIDATOR_SCRIPT_TYPE_HASH"
 polyjuice_type_script_hash="$POLYJUICE_VALIDATOR_TYPE_HASH"
 rollup_type_hash="$ROLLUP_TYPE_HASH"
@@ -272,15 +250,6 @@ EOF
     log "Generate file \"$CONFIG_DIR/web3-indexer-config.toml\""
 }
 
-# TODO replace with jq
-function get_value2() {
-    filepath=$1
-    key1=$2
-    key2=$3
-
-    echo "$(cat $filepath)" | grep -Pzo ''$key1'[^}]*'$key2'":[\s]*"\K[^"]*'
-}
-
 function log() {
     echo "[${FUNCNAME[1]}] $1"
 }
@@ -289,9 +258,12 @@ function main() {
     deploy-scripts
     deploy-rollup-genesis
     generate-godwoken-config
-    deposit-and-create-polyjuice-creator-account
+    start-godwoken-at-background
+    create-polyjuice-root-account
+    config-godwoken-eoa-register
     generate-web3-config
     generate-web3-indexer-config
+    stop-godwoken
 }
 
 main "$@"
