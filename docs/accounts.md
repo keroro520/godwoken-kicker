@@ -12,7 +12,6 @@ ckb-miner-and-faucet.key
 godwoken-block-producer.key
 godwoken-eoa-register.key
 polyjuice-root-account.key
-rollup-genesis-cell-deployer.key
 rollup-scripts-deployer.key
 
 $ ckb-cli util key-info --privkey-path accounts/godwoken-eoa-register.key
@@ -46,11 +45,13 @@ $ ethereum_private_key_to_address $(cat accounts/godwoken-eoa-register.key)
 
   Under executing `kicker deposit`, the CKB faucet transfers amount of CKBs to the given address and then deposits into layer2(Godwoken).
 
-## [Deployer of Rollup Genesis Cell](../accounts/rollup-genesis-cell-deployer.key)
+## [Deployer of Rollup Genesis Cell](../accounts/godwoken-block-producer.key)
 
   This key identities the deployer of rollup genesis cell on layer1, using to deploy Rollup genesis cell.
 
-  When sets up Rollup genesis cell on layer1, `gw-tools deploy-genesis` [records the public key](https://github.com/nervosnetwork/godwoken/blob/c18807b5cfaa961c230e15e3a381570c324db6f8/crates/tools/src/deploy_genesis.rs#L428-L448) of `rollup-genesis-cell-deployer.key` using [Omnilock](https://blog.cryptape.com/omnilock-a-universal-lock-that-powers-interoperability-1).
+  When sets up Rollup genesis cell on layer1, `gw-tools deploy-genesis` [records the public key](https://github.com/nervosnetwork/godwoken/blob/c18807b5cfaa961c230e15e3a381570c324db6f8/crates/tools/src/deploy_genesis.rs#L428-L448) using [Omnilock](https://blog.cryptape.com/omnilock-a-universal-lock-that-powers-interoperability-1).
+
+  This key must be the same with [Godwoken block producer](./accounts.md#Godwoken%20Block%20Producer). I don't know why.
 
 ## [Deployer of Rollup Scripts (will be removed soon)](../accounts/rollup-scripts-deployer.key)
 

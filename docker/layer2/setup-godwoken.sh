@@ -87,7 +87,7 @@ function deploy-rollup-genesis() {
         --omni-lock-config-path $CONFIG_DIR/scripts-deployment.json \
         --rollup-config $CONFIG_DIR/rollup-config.json \
         -o $CONFIG_DIR/rollup-genesis-deployment.json \
-        -k $ACCOUNTS_DIR/rollup-genesis-cell-deployer.key
+        -k $ACCOUNTS_DIR/godwoken-block-producer.key
     stop-ckb-miner
     log "Generate file \"$CONFIG_DIR/rollup-genesis-deployment.json\""
 }
