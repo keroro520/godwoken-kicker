@@ -136,6 +136,7 @@ function create-polyjuice-root-account() {
     fi
 
     start-ckb-miner-at-background
+    start-godwoken-at-background
     RUST_BACKTRACE=full gw-tools deposit-ckb \
         --privkey-path $ACCOUNTS_DIR/polyjuice-root-account.key \
         --godwoken-rpc-url http://127.0.0.1:8119 \
@@ -150,6 +151,7 @@ function create-polyjuice-root-account() {
         --config-path $CONFIG_DIR/godwoken-config.toml \
         --sudt-id 1 \
     > /var/tmp/gw-tools.log 2>&1
+    stop-godwoken
     stop-ckb-miner
 
     cat /var/tmp/gw-tools.log
@@ -162,8 +164,24 @@ function config-godwoken-eoa-register() {
     configured_eoa_register=$(grep -q eth_eoa_mapping_config $CONFIG_DIR/godwoken-config.toml || echo "not found")
     if [ ! "$configured_eoa_register" = "not found" ]; then
         log "eth_eoa_mapping_config configuration already exists, skip"
+        return 0
     fi
 
+    # Deposit for Godwoken EOA register
+    start-ckb-miner-at-background
+    start-godwoken-at-background
+    RUST_BACKTRACE=full gw-tools deposit-ckb \
+        --privkey-path $ACCOUNTS_DIR/godwoken-eoa-register.key \
+        --godwoken-rpc-url http://127.0.0.1:8119 \
+        --ckb-rpc http://ckb:8114 \
+        --scripts-deployment-path $CONFIG_DIR/scripts-deployment.json \
+        --config-path $CONFIG_DIR/godwoken-config.toml \
+        --capacity 2000
+    stop-godwoken
+    stop-ckb-miner
+
+    # Then we are allowed to configured it as EOA register.
+    # Remember, Godwoken is required to restart to make EOA register works.
     echo ""                                                                                 >> $CONFIG_DIR/godwoken-config.toml
     echo "[eth_eoa_mapping_config.register_wallet_config]"                                  >> $CONFIG_DIR/godwoken-config.toml
     echo "privkey_path = '$ACCOUNTS_DIR/godwoken-eoa-register.key'"                         >> $CONFIG_DIR/godwoken-config.toml
@@ -258,12 +276,10 @@ function main() {
     deploy-scripts
     deploy-rollup-genesis
     generate-godwoken-config
-    start-godwoken-at-background
-    create-polyjuice-root-account
     config-godwoken-eoa-register
+    create-polyjuice-root-account
     generate-web3-config
     generate-web3-indexer-config
-    stop-godwoken
 }
 
 main "$@"
