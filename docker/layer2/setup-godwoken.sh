@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # NOTE: In `config/rollup-config.json`, `l1_sudt_cell_dep` identifies the l1_sudt cell located at the genesis block of CKB. Please type `ckb -C docker/layer1/ckb list-hash` for more information.
+# NOTE: The first run of Godwoken MUST be `eth_eoa_mapping_config = null`, then deposit, finaly restart with `eth_eoa_mapping_config = <deposited user>`
 
 set -o errexit
 
@@ -149,6 +150,7 @@ function deposit-and-create-polyjuice-creator-account() {
     > /var/tmp/gw-tools.log 2>&1
     stop-godwoken
 
+    # TODO https://github.com/nervosnetwork/godwoken/issues/616
     # update block_producer.account_id
     sed -i 's#^account_id = .*$#account_id = 2#' $CONFIG_DIR/godwoken-config.toml
 
