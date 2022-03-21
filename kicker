@@ -170,7 +170,7 @@ function deposit() {
     ethaddr=${1:?"\"$EXECUTABLE deposit\" requires eth address as 1st argument"}
     amount=${2:?"\"$EXECUTABLE deposit\" requires amount as 2nd argument"}
 
-    pkpath=${PRIVATE_KEY_PATH:-"$WORKSPACE/config/private_key"}
+    pkpath=${PRIVATE_KEY_PATH:-"$WORKSPACE/accounts/ckb-miner-and-faucet.key"}
     if [ ! -f $pkpath ]; then
         error "$pkpath: No such file or directory"
         exit 1
