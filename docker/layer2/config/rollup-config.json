@@ -13,7 +13,7 @@
    },
    "challenge_maturity_blocks" : 100,
    "compatible_chain_id" : 1984,
-   "finality_blocks" : 100,
+   "finality_blocks" : 3,
    "l1_sudt_cell_dep" : {
       "dep_type" : "code",
       "out_point" : {

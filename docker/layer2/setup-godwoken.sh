@@ -276,8 +276,11 @@ function main() {
     deploy-scripts
     deploy-rollup-genesis
     generate-godwoken-config
-    config-godwoken-eoa-register
+
+    # 顺序是什么吗？
     create-polyjuice-root-account
+    config-godwoken-eoa-register
+
     generate-web3-config
     generate-web3-indexer-config
 }
