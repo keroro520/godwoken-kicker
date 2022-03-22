@@ -76,7 +76,11 @@ services:
       - ./layer2:/var/lib/layer2
       - ../accounts:/accounts
     entrypoint: "/var/lib/layer2/setup-godwoken.sh"
-    restart: "no"
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 1s
+        max_attempts: 10
     depends_on:
       ckb:
         condition: service_started
