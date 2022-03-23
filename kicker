@@ -278,6 +278,8 @@ function manual-build() {
     echo
 
     if [ "$MANUAL_BUILD_WEB3" = "true" ]; then
+        info "Start building godwoken-web3"
+
         srcdir=$WORKSPACE/packages/godwoken-web3
         dstdir=$WORKSPACE/docker/manual-artifacts/godwoken-web3
 
@@ -308,6 +310,8 @@ function manual-build() {
     fi
 
     if [ "$MANUAL_BUILD_WEB3_INDEXER" = "true" ]; then
+        info "Start building godwoken-web3-indexer"
+
         srcdir=$WORKSPACE/packages/godwoken-web3
         dstdir=$WORKSPACE/docker/manual-artifacts
 
@@ -336,6 +340,8 @@ function manual-build() {
     fi
 
     if [ "$MANUAL_BUILD_GODWOKEN" = "true" ]; then
+        info "Start building godwoken"
+
         srcdir=$WORKSPACE/packages/godwoken
         dstdir=$WORKSPACE/docker/manual-artifacts
 
