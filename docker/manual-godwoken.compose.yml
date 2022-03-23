@@ -17,9 +17,9 @@ services:
   #   ```
   godwoken:
     volumes:
-      - ./manual-artifacts/godwoken:/usr/bin/godwoken
-      - ./manual-artifacts/gw-tools:/usr/bin/gw-tools
+      - ./manual-artifacts/godwoken:/usr/bin/godwoken:ro
+      - ./manual-artifacts/gw-tools:/usr/bin/gw-tools:ro
   setup-godwoken:
     volumes:
-      - ./manual-artifacts/godwoken:/usr/bin/godwoken
-      - ./manual-artifacts/gw-tools:/usr/bin/gw-tools
+      - ./manual-artifacts/godwoken:/usr/bin/godwoken:ro
+      - ./manual-artifacts/gw-tools:/usr/bin/gw-tools:ro

@@ -17,4 +17,4 @@ services:
   #   ```
   web3-indexer:
     volumes:
-      - ./manual-artifacts/gw-web3-indexer:/usr/bin/gw-web3-indexer
+      - ./manual-artifacts/gw-web3-indexer:/usr/bin/gw-web3-indexer:ro

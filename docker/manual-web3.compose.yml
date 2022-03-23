@@ -17,4 +17,4 @@ services:
   #   ```
   web3:
     volumes:
-      - ./manual-artifacts/godwoken-web3:/godwoken-web3
+      - ./manual-artifacts/godwoken-web3:/godwoken-web3:ro
