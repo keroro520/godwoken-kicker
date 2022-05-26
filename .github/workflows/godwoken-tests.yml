@@ -12,4 +12,3 @@ jobs:
       extra_github_env: |
         KICKER_REPO=${{ github.repository }}
         KICKER_REF=${{ github.ref }}
-        HELLO=a
