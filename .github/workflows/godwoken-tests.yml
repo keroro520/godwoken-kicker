@@ -1,15 +1,14 @@
-name: Integration Test
+name: WIP
 
 on:
   push:
-    branches: [develop, master, ci, 'v1*', compatibility-changes]
-    # Publish semver tags as releases.
-    tags: ["v*.*.*"]
   pull_request:
+  workflow_dispatch:
 
 jobs:
   godwoken-tests:
-    uses: nervosnetwork/godwoken-tests/.github/workflows/reusable-integration-test-v1.yml@develop
+    uses: keroro520/godwoken-tests/.github/workflows/reusable-integration-test-v1.yml@89f42b15a41aa0abf1023a8cdb969179620c8181
     with:
-      # github.ref: The branch or tag ref that triggered the workflow run. For branches this is the format refs/heads/<branch_name>, and for tags it is refs/tags/<tag_name>.
-      kicker_ref: ${{ github.ref }}
+      extra_github_env: |
+        KICKER_REPO=${{ github.repository }}
+        KICKER_REF=${{ github.ref }}
