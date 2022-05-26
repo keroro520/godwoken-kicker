@@ -7,7 +7,7 @@ on:
 
 jobs:
   godwoken-tests:
-    uses: keroro520/godwoken-tests/.github/workflows/reusable-integration-test-v1.yml@89f42b15a41aa0abf1023a8cdb969179620c8181
+    uses: keroro520/godwoken-tests/.github/workflows/reusable-integration-test-v1.yml@ci-allow-fork-repo
     with:
       extra_github_env: |
         KICKER_REPO=${{ github.repository }}
