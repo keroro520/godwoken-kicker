@@ -14,3 +14,9 @@ jobs:
       extra_github_env: |
         GODWOKEN_KICKER_REPO=${{ github.repository }}
         GODWOKEN_KICKER_REF=${{ github.ref }}
+        MANUAL_BUILD_GODWOKEN=true
+        GODWOKEN_GIT_URL="https://github.com/godwokenrises/godwoken"
+        GODWOKEN_GIT_CHECKOUT="a7fd9243a1e6e185671f2514c04a66b54313e238"
+        MANUAL_BUILD_SCRIPTS=true
+        SCRIPTS_GIT_URL="https://github.com/godwokenrises/godwoken"
+        SCRIPTS_GIT_CHECKOUT="a7fd9243a1e6e185671f2514c04a66b54313e238"
