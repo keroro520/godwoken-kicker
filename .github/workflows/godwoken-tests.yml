@@ -2,10 +2,12 @@ name: Godwoken Tests
 
 on:
   push:
-    branches: [develop, master, ci, 'v1*', compatibility-changes]
+    branches: [develop]
     # Publish semver tags as releases.
     tags: ["v*.*.*"]
   pull_request:
+  schedule:
+    - cron: '0 * * * *'
 
 jobs:
   godwoken-tests:
@@ -14,3 +16,9 @@ jobs:
       extra_github_env: |
         GODWOKEN_KICKER_REPO=${{ github.repository }}
         GODWOKEN_KICKER_REF=${{ github.ref }}
+        MANUAL_BUILD_GODWOKEN="true"
+        MANUAL_BUILD_SCRIPTS="true"
+        GODWOKEN_GIT_URL=https://github.com/keroro520/godwoken
+        GODWOKEN_GIT_CHECKOUT=feat-withdrawal-finalized-timepoint
+        SCRIPTS_GIT_URL=https://github.com/keroro520/godwoken
+        SCRIPTS_GIT_CHECKOUT=feat-withdrawal-finalized-timepoint
