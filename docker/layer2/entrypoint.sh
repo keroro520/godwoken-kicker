@@ -138,6 +138,7 @@ function generate_godwoken_config() {
     if [ ! -z "$STORE_PATH" ]; then
         sed -i 's#^path = .*$#path = '"'$STORE_PATH'"'#' $CONFIG_DIR/godwoken-config.toml
     fi
+    sed -i "/\[\[fork.backend_forks\]\]/i \[fork\]\nupgrade_global_state_version_to_v2 = 10"
     cat >> $CONFIG_DIR/godwoken-config.toml <<EOF
 
 [p2p_network_config]
